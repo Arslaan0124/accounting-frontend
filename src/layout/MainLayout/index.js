@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
 // material-ui
@@ -11,6 +11,7 @@ import Drawer from './Drawer';
 import Header from './Header';
 import navigation from 'menu-items';
 import Breadcrumbs from 'components/@extended/Breadcrumbs';
+import { auth } from '../../constants/constants';
 
 // types
 import { openDrawer } from 'store/reducers/menu';
@@ -18,6 +19,9 @@ import { openDrawer } from 'store/reducers/menu';
 // ==============================|| MAIN LAYOUT ||============================== //
 
 const MainLayout = () => {
+    const token = localStorage.getItem(auth.accessToken);
+    const location = useLocation();
+
     const theme = useTheme();
     const matchDownLG = useMediaQuery(theme.breakpoints.down('xl'));
     const dispatch = useDispatch();
@@ -44,7 +48,7 @@ const MainLayout = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [drawerOpen]);
 
-    return (
+    return token ? (
         <Box sx={{ display: 'flex', width: '100%' }}>
             <Header open={open} handleDrawerToggle={handleDrawerToggle} />
             <Drawer open={open} handleDrawerToggle={handleDrawerToggle} />
@@ -54,6 +58,8 @@ const MainLayout = () => {
                 <Outlet />
             </Box>
         </Box>
+    ) : (
+        <Navigate to="/login" state={{ from: location }} replace />
     );
 };
 

@@ -42,7 +42,6 @@ const Breadcrumbs = ({ navigation, title, ...others }) => {
         });
     });
 
-    // only used for component demo breadcrumbs
     if (location.pathname === '/breadcrumbs') {
         location.pathname = '/dashboard/analytics';
     }
@@ -63,7 +62,7 @@ const Breadcrumbs = ({ navigation, title, ...others }) => {
 
     // items
     if (item && item.type === 'item') {
-        itemTitle = item.title;
+        itemTitle = item.breadcrumb ? item.breadcrumb : item.title;
         itemContent = (
             <Typography variant="subtitle1" color="textPrimary">
                 {itemTitle}

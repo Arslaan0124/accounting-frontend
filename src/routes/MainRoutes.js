@@ -3,6 +3,8 @@ import { lazy } from 'react';
 // project import
 import Loadable from 'components/Loadable';
 import MainLayout from 'layout/MainLayout';
+import InvoicePage from 'features/invoices/InvoicePage';
+import NewInvoice from 'features/invoices/NewInvoice';
 
 // render - dashboard
 const DashboardDefault = Loadable(lazy(() => import('pages/dashboard')));
@@ -42,6 +44,14 @@ const MainRoutes = {
         {
             path: 'sample-page',
             element: <SamplePage />
+        },
+        {
+            path: 'invoices',
+            element: <InvoicePage />
+        },
+        {
+            path: 'new-invoice',
+            element: <NewInvoice />
         },
         {
             path: 'shadow',

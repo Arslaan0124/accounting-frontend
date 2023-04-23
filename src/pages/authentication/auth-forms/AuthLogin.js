@@ -21,8 +21,12 @@ import {
 // third party
 import * as Yup from 'yup';
 import { Formik } from 'formik';
-
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 // project import
+import { useLoginMutation } from 'features/auth/authApiSlice';
+import { setCredentials } from 'features/auth/authSlice';
+import { ErrorToast } from 'components/Toasts/Toasts';
 import FirebaseSocial from './FirebaseSocial';
 import AnimateButton from 'components/@extended/AnimateButton';
 
@@ -33,7 +37,9 @@ import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
 
 const AuthLogin = () => {
     const [checked, setChecked] = React.useState(false);
-
+    const [login, { isLoading }] = useLoginMutation();
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
     const [showPassword, setShowPassword] = React.useState(false);
     const handleClickShowPassword = () => {
         setShowPassword(!showPassword);
@@ -47,8 +53,8 @@ const AuthLogin = () => {
         <>
             <Formik
                 initialValues={{
-                    email: 'info@codedthemes.com',
-                    password: '123456',
+                    email: '',
+                    password: '',
                     submit: null
                 }}
                 validationSchema={Yup.object().shape({
@@ -58,10 +64,15 @@ const AuthLogin = () => {
                 onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
                     try {
                         setStatus({ success: false });
-                        setSubmitting(false);
+                        setSubmitting(true);
+                        const response = await login(values).unwrap();
+                        dispatch(setCredentials(response));
+                        navigate('/');
                     } catch (err) {
+                        ErrorToast('Account not found');
                         setStatus({ success: false });
                         setErrors({ submit: err.message });
+                    } finally {
                         setSubmitting(false);
                     }
                 }}

@@ -1,4 +1,3 @@
-// assets
 import { DashboardOutlined } from '@ant-design/icons';
 
 // icons
@@ -10,7 +9,7 @@ const icons = {
 
 const dashboard = {
     id: 'group-dashboard',
-    title: 'Navigation',
+    title: 'Accounting',
     type: 'group',
     children: [
         {

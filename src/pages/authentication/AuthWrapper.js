@@ -10,6 +10,7 @@ import AuthFooter from 'components/cards/AuthFooter';
 
 // assets
 import AuthBackground from 'assets/images/auth/AuthBackground';
+import { Typography } from '@mui/material';
 
 // ==============================|| AUTHENTICATION - WRAPPER ||============================== //
 
@@ -25,7 +26,7 @@ const AuthWrapper = ({ children }) => (
             }}
         >
             <Grid item xs={12} sx={{ ml: 3, mt: 3 }}>
-                <Logo />
+                <Typography variant="h5">Simple Accounting</Typography>
             </Grid>
             <Grid item xs={12}>
                 <Grid
