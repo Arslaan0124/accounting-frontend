@@ -108,3 +108,6 @@ dist
 
 #output
 build
+
+# Local Netlify folder
+.netlify

@@ -39,12 +39,6 @@ const ProfileTab = ({ handleLogout }) => {
                 </ListItemIcon>
                 <ListItemText primary="Social Profile" />
             </ListItemButton>
-            <ListItemButton selected={selectedIndex === 4} onClick={(event) => handleListItemClick(event, 4)}>
-                <ListItemIcon>
-                    <WalletOutlined />
-                </ListItemIcon>
-                <ListItemText primary="Billing" />
-            </ListItemButton>
             <ListItemButton selected={selectedIndex === 2} onClick={handleLogout}>
                 <ListItemIcon>
                     <LogoutOutlined />

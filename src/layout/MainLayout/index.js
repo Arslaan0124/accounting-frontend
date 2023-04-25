@@ -49,15 +49,17 @@ const MainLayout = () => {
     }, [drawerOpen]);
 
     return token ? (
-        <Box sx={{ display: 'flex', width: '100%' }}>
-            <Header open={open} handleDrawerToggle={handleDrawerToggle} />
-            <Drawer open={open} handleDrawerToggle={handleDrawerToggle} />
-            <Box component="main" sx={{ width: '100%', flexGrow: 1, p: { xs: 2, sm: 3 } }}>
-                <Toolbar />
-                <Breadcrumbs navigation={navigation} title titleBottom card={false} divider={false} />
-                <Outlet />
+        <>
+            <Box sx={{ display: 'flex', width: '100%' }}>
+                <Header open={open} handleDrawerToggle={handleDrawerToggle} />
+                <Drawer open={open} handleDrawerToggle={handleDrawerToggle} />
+                <Box component="main" sx={{ width: '100%', flexGrow: 1, p: { xs: 2, sm: 3 } }}>
+                    <Toolbar />
+                    <Breadcrumbs navigation={navigation} title titleBottom card={false} divider={false} />
+                    <Outlet />
+                </Box>
             </Box>
-        </Box>
+        </>
     ) : (
         <Navigate to="/login" state={{ from: location }} replace />
     );

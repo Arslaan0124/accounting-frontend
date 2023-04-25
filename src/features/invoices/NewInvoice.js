@@ -1,22 +1,43 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { TextField, Grid, Button, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import AsyncSelect from 'react-select/async';
 import debounce from 'lodash/debounce';
-import { ErrorToast } from 'components/Toasts/Toasts';
+import { ErrorToast, SuccessToast } from 'components/Toasts/Toasts';
 import { useLazyCustomersSearchQuery } from 'features/customers/customersApi';
-import { Box } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import { Typography } from '@mui/material';
 import MainCard from 'components/MainCard';
+import { useAddInvoiceMutation } from './invoicesApi';
+import {
+    Grid,
+    TextField,
+    Button,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
+    Box,
+    Autocomplete
+} from '@mui/material';
+
+import { useGetAllItemsQuery } from 'features/items/itemsApi';
+import { useNavigate } from 'react-router-dom';
 
 const AddInvoice = () => {
+    const navigate = useNavigate();
     const [search] = useLazyCustomersSearchQuery();
+    const [addInvoice] = useAddInvoiceMutation();
+    const { data: allItems } = useGetAllItemsQuery();
     const theme = useTheme();
     const [formValues, setFormValues] = useState({
         orderNumber: '',
         date: '',
         dueDate: '',
-        status: 'Active',
+        status: 'active',
         billingAddress: '',
         shippingAddress: '',
         remarks: '',
@@ -27,22 +48,35 @@ const AddInvoice = () => {
         fileUpload: null
     });
     const [customer, setCustomer] = useState(null);
+    const [items, setItems] = useState([{ item: null, quantity: 0, rate: 0, discount: 0, tax: 0 }]);
 
-    useEffect(() => {
-        async function fetchData() {
-            try {
-                const response = await search('').unwrap();
-                console.log(response);
-            } catch (err) {
-                ErrorToast('Failed to load customers!');
-            }
-        }
-        fetchData();
-    }, []);
+    const mutateFormValues = (values) => ({
+        billing_address: values.billingAddress,
+        customer_notes: values.customerNotes,
+        due_date: values.dueDate,
+        order_number: values.orderNumber,
+        shipping_address: values.shippingAddress,
+        shipping_charges: values.shippingCharges,
+        status: values.status,
+        terms_and_conditions: values.termsAndConditions,
+        remarks: values.remarks,
+        date: values.date,
+        adjustment: values.adjustment,
+        customer: customer,
+        items: items
+    });
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
-        console.log(formValues);
+        const payload = mutateFormValues(formValues);
+        console.log(payload);
+        try {
+            await addInvoice(payload);
+            SuccessToast('Invoice added successfully');
+            navigate('/invoices');
+        } catch (err) {
+            ErrorToast('Failed to create invoice!');
+        }
     };
 
     const handleInputChange = (event) => {
@@ -91,13 +125,171 @@ const AddInvoice = () => {
         }));
     };
 
+    const handleChange = (event, index) => {
+        const { name, value } = event.target;
+        const newItems = [...items];
+        newItems[index][name] = value;
+        setItems(newItems);
+    };
+
+    const handleItemChange = (event, newValue, index) => {
+        const name = 'item';
+        const newItems = [...items];
+        newItems[index][name] = newValue?.id;
+    };
+
+    const handleAddItem = () => {
+        setItems([...items, { item: null, quantity: 0, rate: 0, discount: 0, tax: 0 }]);
+    };
+
+    const handleRemoveItem = (index) => {
+        const newItems = [...items];
+        newItems.splice(index, 1);
+        setItems(newItems);
+    };
+
+    const getTotalAmount = () => {
+        return items.reduce((total, item) => {
+            const amount = item.quantity * item.rate * (1 - item.discount / 100) * (1 + item.tax / 100);
+            return total + amount;
+        }, 0);
+    };
+
+    const calculateAmount = useCallback((quantity, rate, discount, tax) => {
+        const discountedRate = rate - rate * (discount / 100);
+        const taxedRate = discountedRate + discountedRate * (tax / 100);
+        const amount = quantity * taxedRate;
+        return amount.toFixed(2);
+    }, []);
+
+    const formItemOptions = (allItems) => {
+        if (!allItems) {
+            return [];
+        }
+        const items = allItems?.results.map((item) => ({
+            label: item.name,
+            id: item.id,
+            rate: item.rate,
+            stock_on_hand: item.stock_on_hand
+        }));
+        return items;
+    };
+
+    const RenderItemTable = useMemo(
+        () => (
+            <Grid item xs={12} sx={{ marginTop: 2 }}>
+                <div>
+                    <span>Add items</span>
+                    <TableContainer>
+                        <Table>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>Item</TableCell>
+                                    <TableCell>Quantity</TableCell>
+                                    <TableCell>Rate</TableCell>
+                                    <TableCell>Discount (%)</TableCell>
+                                    <TableCell>Tax (%)</TableCell>
+                                    <TableCell>Amount</TableCell>
+                                    <TableCell></TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {items.map((item, index) => (
+                                    <TableRow key={index}>
+                                        <TableCell>
+                                            <Autocomplete
+                                                disablePortal
+                                                id={`combo-box-demo-${index}`}
+                                                options={formItemOptions(allItems)}
+                                                isOptionEqualToValue={(option, value) => option.id === value.id}
+                                                sx={{ width: 300 }}
+                                                onChange={(event, newValue) => handleItemChange(event, newValue, index)}
+                                                renderInput={(params) => <TextField {...params} label="Item" />}
+                                                renderOption={(props, option) => (
+                                                    <Box component="li" {...props}>
+                                                        <div>
+                                                            <h4>{option.label}</h4>
+                                                            <span>
+                                                                Rate: {option.rate}
+                                                                {' | '}
+                                                            </span>
+                                                            <span>Stock: {option.stock_on_hand}</span>
+                                                        </div>
+                                                    </Box>
+                                                )}
+                                            />
+                                        </TableCell>
+                                        <TableCell>
+                                            <TextField
+                                                type="number"
+                                                name="quantity"
+                                                value={item.quantity}
+                                                onChange={(event) => handleChange(event, index)}
+                                            />
+                                        </TableCell>
+                                        <TableCell>
+                                            <TextField
+                                                type="number"
+                                                name="rate"
+                                                value={item.rate}
+                                                onChange={(event) => handleChange(event, index)}
+                                            />
+                                        </TableCell>
+                                        <TableCell>
+                                            <TextField
+                                                type="number"
+                                                name="discount"
+                                                value={item.discount}
+                                                onChange={(event) => handleChange(event, index)}
+                                            />
+                                        </TableCell>
+                                        <TableCell>
+                                            <TextField
+                                                type="number"
+                                                name="tax"
+                                                value={item.tax}
+                                                onChange={(event) => handleChange(event, index)}
+                                            />
+                                        </TableCell>
+                                        <TableCell>{calculateAmount(item.quantity, item.rate, item.discount, item.tax)}</TableCell>
+                                        <TableCell>
+                                            <Button onClick={() => handleRemoveItem(index)}>Remove</Button>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                                <TableRow>
+                                    <TableCell colSpan={6}>Total Amount</TableCell>
+                                    <TableCell>{getTotalAmount()}</TableCell>
+                                </TableRow>
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                    <Button onClick={handleAddItem}>Add Item</Button>
+                </div>
+            </Grid>
+        ),
+        [allItems, handleAddItem, handleChange, handleItemChange, handleRemoveItem]
+    );
+
+    const renderSelect = useCallback(
+        () => (
+            <AsyncSelect
+                loadOptions={debouncedSearch}
+                isClearable={true}
+                onChange={handleSelectChange}
+                menuPortalTarget={document.body}
+                menuPosition={'fixed'}
+            />
+        ),
+        [debouncedSearch]
+    );
     return (
         <MainCard title="New Invoice">
             <form onSubmit={handleSubmit}>
-                <Grid container spacing={3}>
-                    <Grid item xs={12}>
+                <Grid container spacing={3} sx={{ width: '80%', padding: 2 }}>
+                    <Grid item xs={12} sm={6}>
                         <span>Select a customer</span>
-                        <AsyncSelect loadOptions={debouncedSearch} isClearable={true} onChange={handleSelectChange} />
+                        {renderSelect()}
                     </Grid>
                     <Grid item xs={12}>
                         <TextField
@@ -137,17 +329,25 @@ const AddInvoice = () => {
                             }}
                         />
                     </Grid>
+                    <Grid item sm={12} sx={12}>
+                        <hr />
+                    </Grid>
+                    {RenderItemTable}
+                    <Grid item sm={12} sx={12}>
+                        <hr />
+                    </Grid>
                     <Grid item xs={12}>
                         <FormControl>
                             <InputLabel id="status-label">Status</InputLabel>
                             <Select labelId="status-label" id="status" name="status" value={formValues.status} onChange={handleInputChange}>
-                                <MenuItem value={'Active'}>Active</MenuItem>
-                                <MenuItem value={'Draft'}>Draft</MenuItem>
+                                <MenuItem value={'active'}>Active</MenuItem>
+                                <MenuItem value={'draft'}>Draft</MenuItem>
                             </Select>
                         </FormControl>
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid item xs={8}>
                         <TextField
+                            sx={{ width: '100%' }}
                             required
                             id="billingAddress"
                             name="billingAddress"
@@ -158,8 +358,9 @@ const AddInvoice = () => {
                             onChange={handleInputChange}
                         />
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid item xs={8}>
                         <TextField
+                            sx={{ width: '100%' }}
                             required
                             id="shippingAddress"
                             name="shippingAddress"
@@ -170,8 +371,9 @@ const AddInvoice = () => {
                             onChange={handleInputChange}
                         />
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid item xs={8}>
                         <TextField
+                            sx={{ width: '100%' }}
                             id="remarks"
                             name="remarks"
                             label="Remarks"
@@ -181,8 +383,9 @@ const AddInvoice = () => {
                             onChange={handleInputChange}
                         />
                     </Grid>
-                    <Grid item xs={12} sm={4}>
+                    <Grid item xs={12} sm={6}>
                         <TextField
+                            sx={{ width: '100%' }}
                             id="shippingCharges"
                             name="shippingCharges"
                             label="Shipping Charges"
@@ -191,8 +394,9 @@ const AddInvoice = () => {
                             onChange={handleInputChange}
                         />
                     </Grid>
-                    <Grid item xs={12} sm={4}>
+                    <Grid item xs={12} sm={6}>
                         <TextField
+                            sx={{ width: '100%' }}
                             id="adjustment"
                             name="adjustment"
                             label="Adjustment"
@@ -201,18 +405,24 @@ const AddInvoice = () => {
                             onChange={handleInputChange}
                         />
                     </Grid>
-                    <Grid item xs={12} sm={4}>
+                    <Grid item xs={12} sm={8}>
                         <TextField
+                            sx={{ width: '100%' }}
                             id="customerNotes"
                             name="customerNotes"
                             label="Customer Notes"
-                            type="number"
+                            multiline
+                            rows={4}
                             value={formValues.customerNotes}
                             onChange={handleInputChange}
                         />
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid item sm={12} sx={12}>
+                        <hr />
+                    </Grid>
+                    <Grid item xs={12} sm={8}>
                         <TextField
+                            sx={{ width: '100%' }}
                             id="termsAndConditions"
                             name="termsAndConditions"
                             label="Terms and Conditions"

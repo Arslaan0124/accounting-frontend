@@ -3,12 +3,12 @@ import { BASE_URL } from '../../constants/constants';
 
 const baseQuery = fetchBaseQuery({
     baseUrl: BASE_URL,
-    tagTypes: ['Auth'],
+    tagTypes: ['Auth', 'Invoices', 'Items'],
     keepUnusedDataFor: 30,
     prepareHeaders: (headers, { getState }) => {
         const accessToken = getState().auth.accessToken;
         if (accessToken) {
-            headers.set('Authorization', accessToken);
+            headers.set('Authorization', `Bearer ${accessToken}`);
         }
         return headers;
     }

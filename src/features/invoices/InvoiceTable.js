@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { useLazyGetInvoicesQuery } from 'features/invoices/invoicesApi';
+import { useGetInvoicesQuery, useLazyGetInvoicesQuery } from 'features/invoices/invoicesApi';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -106,29 +106,17 @@ const EnhancedTableHead = (props) => {
 
 const InvoiceTable = () => {
     const theme = useTheme();
-    const [order, setOrder] = useState('asc');
-    const [orderBy, setOrderBy] = useState('date');
+    const [order, setOrder] = useState('desc');
+    const [orderBy, setOrderBy] = useState('created_at');
     const [page, setPage] = useState(0);
-    const [dense, setDense] = useState(false);
     const [rowsPerPage, setRowsPerPage] = useState(10);
-    const [paddingHeight, setPaddingHeight] = useState(0);
     const navigate = useNavigate();
-    const [invoices, setInvoices] = useState(null);
-    const [fetchInvoices, { isLoading }] = useLazyGetInvoicesQuery();
+    const offset = page * 10;
+    const { data, isLoading, isError } = useGetInvoicesQuery({ orderBy, order, offset });
 
-    useEffect(() => {
-        async function fetchData() {
-            try {
-                const response = await fetchInvoices({ orderBy, order }).unwrap();
-                setInvoices(response.results);
-            } catch (err) {
-                ErrorToast("Couldn't fetch invoices");
-            }
-        }
-        fetchData();
-    }, [order, orderBy]);
-
-    console.log(invoices);
+    if (isError) {
+        ErrorToast('Failed to fetch invoices');
+    }
 
     const handleRequestSort = (event, newOrderBy) => {
         const isAsc = orderBy === newOrderBy && order === 'asc';
@@ -139,12 +127,8 @@ const InvoiceTable = () => {
     const handleChangePage = useCallback(
         (event, newPage) => {
             setPage(newPage);
-            // Avoid a layout jump when reaching the last page with empty rows.
-            const numEmptyRows = newPage > 0 ? Math.max(0, (1 + newPage) * rowsPerPage - invoices.length) : 0;
-            const newPaddingHeight = (dense ? 33 : 53) * numEmptyRows;
-            setPaddingHeight(newPaddingHeight);
         },
-        [order, orderBy, dense, rowsPerPage]
+        [order, orderBy, rowsPerPage]
     );
 
     const handleChangeRowsPerPage = useCallback(
@@ -152,16 +136,14 @@ const InvoiceTable = () => {
             const updatedRowsPerPage = parseInt(event.target.value, 10);
             setRowsPerPage(updatedRowsPerPage);
             setPage(0);
-            setPaddingHeight(0);
         },
         [order, orderBy]
     );
 
-    const handleChangeDense = (event) => {
-        setDense(event.target.checked);
+    const handleClick = (event, id) => {
+        event.preventDefault();
+        navigate(`/invoices/${id}`);
     };
-
-    const handleClick = () => {};
 
     const InvoicesTable = () => {
         return (
@@ -179,16 +161,16 @@ const InvoiceTable = () => {
                                 order={order}
                                 orderBy={orderBy}
                                 onRequestSort={handleRequestSort}
-                                rowCount={invoices?.length}
+                                rowCount={data?.results.length}
                             />
                             <TableBody>
-                                {invoices && invoices.length > 0
-                                    ? invoices.map((invoice) => (
+                                {data?.results && data?.results.length > 0
+                                    ? data?.results.map((invoice) => (
                                           <TableRow
                                               hover
                                               key={invoice.id}
                                               sx={{ '&:last-child td, &:last-child th': { border: 0 }, cursor: 'pointer' }}
-                                              onClick={(event) => handleClick(event, invoice)}
+                                              onClick={(event) => handleClick(event, invoice.id)}
                                           >
                                               <TableCell>{invoice.date}</TableCell>
                                               <TableCell>{invoice.id}</TableCell>
@@ -205,7 +187,7 @@ const InvoiceTable = () => {
                     <TablePagination
                         rowsPerPageOptions={[10]}
                         component="div"
-                        count={invoices?.length}
+                        count={data?.count}
                         rowsPerPage={rowsPerPage}
                         page={page}
                         onPageChange={handleChangePage}

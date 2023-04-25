@@ -5,6 +5,13 @@ import Loadable from 'components/Loadable';
 import MainLayout from 'layout/MainLayout';
 import InvoicePage from 'features/invoices/InvoicePage';
 import NewInvoice from 'features/invoices/NewInvoice';
+import InvoiceDetailPage from 'features/invoices/InvoiceDetailPage';
+import ItemsPage from 'features/items/ItemsPage';
+import ItemDetailPage from 'features/items/ItemDetailPage';
+import NewItem from 'features/items/NewItem';
+
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // render - dashboard
 const DashboardDefault = Loadable(lazy(() => import('pages/dashboard')));
@@ -18,11 +25,14 @@ const Color = Loadable(lazy(() => import('pages/components-overview/Color')));
 const Shadow = Loadable(lazy(() => import('pages/components-overview/Shadow')));
 const AntIcons = Loadable(lazy(() => import('pages/components-overview/AntIcons')));
 
-// ==============================|| MAIN ROUTING ||============================== //
-
 const MainRoutes = {
     path: '/',
-    element: <MainLayout />,
+    element: (
+        <>
+            <ToastContainer position="top-right" autoClose={2000} hideProgressBar={false} closeOnClick={true} pauseOnHover={true} />
+            <MainLayout />,
+        </>
+    ),
     children: [
         {
             path: '/',
@@ -50,20 +60,28 @@ const MainRoutes = {
             element: <InvoicePage />
         },
         {
+            path: 'invoices/:id',
+            element: <InvoiceDetailPage />
+        },
+        {
             path: 'new-invoice',
             element: <NewInvoice />
         },
         {
-            path: 'shadow',
-            element: <Shadow />
+            path: 'items',
+            element: <ItemsPage />
         },
         {
-            path: 'typography',
-            element: <Typography />
+            path: 'items/:id',
+            element: <ItemDetailPage />
         },
         {
-            path: 'icons/ant',
-            element: <AntIcons />
+            path: 'new-item',
+            element: <NewItem />
+        },
+        {
+            path: '*',
+            element: <div>404!</div>
         }
     ]
 };

@@ -1,10 +1,12 @@
 // assets
-import { ChromeOutlined, QuestionOutlined } from '@ant-design/icons';
+import { ChromeOutlined, QuestionOutlined, SkinOutlined, FormOutlined } from '@ant-design/icons';
 
 // icons
 const icons = {
     ChromeOutlined,
-    QuestionOutlined
+    QuestionOutlined,
+    FormOutlined,
+    SkinOutlined
 };
 
 const support = {
@@ -24,7 +26,14 @@ const support = {
             title: 'Invoices',
             type: 'item',
             url: '/invoices',
-            icon: icons.ChromeOutlined
+            icon: icons.FormOutlined
+        },
+        {
+            id: 'items',
+            title: 'Items',
+            type: 'item',
+            url: '/items',
+            icon: icons.SkinOutlined
         }
     ]
 };
