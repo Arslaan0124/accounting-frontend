@@ -10,8 +10,8 @@ const icons = {
 };
 
 const support = {
-    id: 'services',
-    title: 'Services',
+    id: 'sales',
+    title: 'Sales',
     type: 'group',
     children: [
         {
@@ -33,6 +33,13 @@ const support = {
             title: 'Items',
             type: 'item',
             url: '/items',
+            icon: icons.SkinOutlined
+        },
+        {
+            id: 'customers',
+            title: 'Customers',
+            type: 'item',
+            url: '/customers',
             icon: icons.SkinOutlined
         }
     ]

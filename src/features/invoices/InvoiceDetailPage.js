@@ -11,21 +11,23 @@ import {
     CircularProgress,
     Box,
     Modal,
-    IconButton,
     Tooltip,
     Button
 } from '@mui/material';
 import MainCard from 'components/MainCard';
 import { useParams } from 'react-router-dom';
 import InvoicePDF from './InvoicePDF';
-import { useDeleteInvoiceMutation, useGetInvoiceQuery } from './invoicesApi';
+import { useDeleteInvoiceMutation, useGetInvoiceQuery, useSendInvoiceEmailMutation } from './invoicesApi';
 import { useCallback, useState } from 'react';
 import { PDFViewer } from '@react-pdf/renderer';
-import { DownloadOutlined } from '@ant-design/icons';
+import { DownloadOutlined, SendOutlined } from '@ant-design/icons';
 import { useTheme } from '@mui/material/styles';
 import { ErrorToast, SuccessToast } from 'components/Toasts/Toasts';
 import { useNavigate } from 'react-router-dom';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { PromiseToast } from 'components/Toasts/Toasts';
+import { toast } from 'react-toastify';
+
 const style = {
     position: 'absolute',
     top: '50%',
@@ -43,6 +45,7 @@ function InvoiceDetailPage() {
     const { id } = useParams();
     const { data: invoice, isLoading } = useGetInvoiceQuery(id);
     const [deleteInvoice] = useDeleteInvoiceMutation();
+    const [sendInvoiceEmail] = useSendInvoiceEmailMutation();
     const [open, setOpen] = useState(false);
     const theme = useTheme();
     const navigate = useNavigate();
@@ -60,6 +63,29 @@ function InvoiceDetailPage() {
         const amount = quantity * taxedRate;
         return amount.toFixed(2);
     }, []);
+
+    const calculateTotalAmount = () => {
+        let totalAmount = 0;
+
+        invoice?.items.forEach((item) => {
+            let itemTotal = item.quantity * item.rate;
+            itemTotal -= itemTotal * (item.discount / 100);
+            itemTotal += itemTotal * (item.tax / 100);
+            totalAmount += itemTotal;
+        });
+
+        return totalAmount.toFixed(2);
+    };
+
+    const handleSendInvoiceEmail = async () => {
+        const id = toast.loading('Dispatching your email');
+        try {
+            await sendInvoiceEmail(invoice?.id).unwrap();
+            toast.update(id, { render: 'Email successfully sent', type: 'success', isLoading: false, autoClose: 2000 });
+        } catch (err) {
+            toast.update(id, { render: 'Failed to send email', type: 'error', isLoading: false, autoClose: 2000 });
+        }
+    };
 
     const handleDelete = async () => {
         try {
@@ -84,13 +110,28 @@ function InvoiceDetailPage() {
             <Box>
                 <Box sx={{ display: 'flex', justifyContent: 'end', padding: 2 }}>
                     <Tooltip title="Delete Invoice">
-                        <IconButton aria-label="delete" onClick={handleDelete}>
-                            <DeleteIcon />
-                        </IconButton>
+                        <Button startIcon={<DeleteIcon />} onClick={handleDelete} sx={{ marginRight: 2 }} variant="outlined" color="error">
+                            Delete
+                        </Button>
                     </Tooltip>
 
-                    <Button variant="contained" startIcon={<DownloadOutlined />} onClick={handleOpen}>
-                        PDF
+                    <Button
+                        startIcon={<DownloadOutlined />}
+                        onClick={handleOpen}
+                        variant="contained"
+                        color="primary"
+                        sx={{ marginRight: 2 }}
+                    >
+                        Download PDF
+                    </Button>
+                    <Button
+                        startIcon={<SendOutlined />}
+                        onClick={handleSendInvoiceEmail}
+                        variant="outlined"
+                        color="primary"
+                        sx={{ marginRight: 2 }}
+                    >
+                        Send to Customer
                     </Button>
                 </Box>
                 <Modal open={open} onClose={handleClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
@@ -121,7 +162,8 @@ function InvoiceDetailPage() {
                             <Typography variant="body1">Order Number: {invoice.order_number}</Typography>
                             <Typography variant="body1">Date: {invoice.date}</Typography>
                             <Typography variant="body1">Due Date: {invoice.due_date}</Typography>
-                            <Typography variant="body1">Status: {invoice.status[1]}</Typography>
+                            <Typography variant="body1">Status: {invoice.status}</Typography>
+                            <Typography variant="body1">Email status: {invoice.sent_times}</Typography>
                         </Paper>
                     </Grid>
                     <Grid item xs={12}>
@@ -156,6 +198,9 @@ function InvoiceDetailPage() {
                                     </TableBody>
                                 </Table>
                             </TableContainer>
+                            <Box display="flex" justifyContent="end">
+                                <Typography variant="h5">Total: {calculateTotalAmount()}</Typography>
+                            </Box>
                         </Paper>
                     </Grid>
                     <Grid item xs={12}>

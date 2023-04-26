@@ -1,5 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { useGetInvoicesQuery, useLazyGetInvoicesQuery } from 'features/invoices/invoicesApi';
+import React, { useCallback, useState } from 'react';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -16,50 +15,45 @@ import { visuallyHidden } from '@mui/utils';
 import TablePagination from '@mui/material/TablePagination';
 import { useNavigate } from 'react-router';
 import { ErrorToast } from '../../components/Toasts/Toasts';
-import { Typography } from '@mui/material';
+import { useGetCustomersQuery } from './customersApi';
+import { Button, Typography } from '@mui/material';
+
 // import { useNavigate } from 'react-router-dom';
 
 const headCells = [
     {
-        id: 'date',
+        id: 'name',
         numeric: false,
         disablePadding: true,
         label: 'DATE',
         sortable: true
     },
     {
-        id: 'id',
+        id: 'company_name',
         numeric: false,
         disablePadding: false,
-        label: 'INVOICE NUMBER',
+        label: 'COMPANY NAME',
         sortable: true
     },
     {
-        id: 'order_number',
+        id: 'type',
         numeric: false,
         disablePadding: false,
-        label: 'ORDER NUMBER',
+        label: 'TYPE',
         sortable: true
     },
     {
-        id: 'customer_name',
+        id: 'email',
         numeric: false,
         disablePadding: false,
-        label: 'CUSTOMER NAME',
+        label: 'EMAIL',
         sortable: false
-    },
-    {
-        id: 'due_date',
-        numeric: false,
-        disablePadding: false,
-        label: 'DUE DATE',
-        sortable: true
     },
     {
         id: 'created_at',
         numeric: false,
         disablePadding: false,
-        label: 'CREATED AT',
+        label: 'JOINED AT',
         sortable: true
     }
 ];
@@ -105,7 +99,7 @@ const EnhancedTableHead = (props) => {
     );
 };
 
-const InvoiceTable = () => {
+const CustomerTable = () => {
     const theme = useTheme();
     const [order, setOrder] = useState('desc');
     const [orderBy, setOrderBy] = useState('created_at');
@@ -113,10 +107,10 @@ const InvoiceTable = () => {
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const navigate = useNavigate();
     const offset = page * 10;
-    const { data, isLoading, isError } = useGetInvoicesQuery({ orderBy, order, offset });
+    const { data, isLoading, isError } = useGetCustomersQuery({ orderBy, order, offset });
 
     if (isError) {
-        ErrorToast('Failed to fetch invoices');
+        ErrorToast('Failed to fetch customers');
     }
 
     const handleRequestSort = (event, newOrderBy) => {
@@ -143,7 +137,7 @@ const InvoiceTable = () => {
 
     const handleClick = (event, id) => {
         event.preventDefault();
-        navigate(`/invoices/${id}`);
+        navigate(`/customers/${id}`);
     };
 
     const InvoicesTable = () => {
@@ -175,11 +169,10 @@ const InvoiceTable = () => {
                                                       sx={{ '&:last-child td, &:last-child th': { border: 0 }, cursor: 'pointer' }}
                                                       onClick={(event) => handleClick(event, invoice.id)}
                                                   >
-                                                      <TableCell>{invoice.date}</TableCell>
-                                                      <TableCell>{invoice.id}</TableCell>
-                                                      <TableCell>{invoice.order_number}</TableCell>
-                                                      <TableCell>{invoice.customer?.name}</TableCell>
-                                                      <TableCell>{invoice.due_date}</TableCell>
+                                                      <TableCell>{invoice.name}</TableCell>
+                                                      <TableCell>{invoice.company_name}</TableCell>
+                                                      <TableCell>{invoice.type}</TableCell>
+                                                      <TableCell>{invoice.email}</TableCell>
                                                       <TableCell>{moment(invoice.created_at).fromNow()}</TableCell>
                                                   </TableRow>
                                               ))
@@ -211,7 +204,7 @@ const InvoiceTable = () => {
                         <Typography variant="h2" sx={{ fontSize: '1rem', fontWeight: 700, color: '#000', margin: 0, marginBottom: 2 }}>
                             Nothing to see yet
                         </Typography>
-                        <Typography variant="body1">Your invoices will show here when you add them</Typography>
+                        <Typography variant="body1">Your customers will show here when you add them</Typography>
                     </Box>
                 )}
             </>
@@ -229,4 +222,4 @@ const InvoiceTable = () => {
     return <InvoicesTable />;
 };
 
-export default InvoiceTable;
+export default CustomerTable;

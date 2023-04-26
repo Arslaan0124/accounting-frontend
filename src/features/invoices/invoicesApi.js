@@ -25,9 +25,21 @@ export const invoicesApiSlice = apiSlice.injectEndpoints({
                 method: 'DELETE'
             }),
             invalidatesTags: [{ type: 'Invoices', id: 'LIST' }]
+        }),
+        sendInvoiceEmail: builder.mutation({
+            query: (id) => ({
+                url: `accounting/invoices/${id}/send_email/`,
+                method: 'POST'
+            })
         })
     })
 });
 
-export const { useGetInvoicesQuery, useLazyGetInvoicesQuery, useGetInvoiceQuery, useAddInvoiceMutation, useDeleteInvoiceMutation } =
-    invoicesApiSlice;
+export const {
+    useGetInvoicesQuery,
+    useLazyGetInvoicesQuery,
+    useGetInvoiceQuery,
+    useAddInvoiceMutation,
+    useDeleteInvoiceMutation,
+    useSendInvoiceEmailMutation
+} = invoicesApiSlice;

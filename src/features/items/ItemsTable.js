@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -14,8 +14,8 @@ import { visuallyHidden } from '@mui/utils';
 import TablePagination from '@mui/material/TablePagination';
 import { useNavigate } from 'react-router';
 import { ErrorToast } from '../../components/Toasts/Toasts';
-import { useGetItemsQuery, useLazyGetItemsQuery } from './itemsApi';
-// import { useNavigate } from 'react-router-dom';
+import { useGetItemsQuery } from './itemsApi';
+import { Typography } from '@mui/material';
 
 const headCells = [
     {
@@ -153,55 +153,74 @@ const ItemsTable = () => {
 
     const ItemTable = () => {
         return (
-            <Box sx={{ width: '100%', boxShadow: 0 }}>
-                <Paper sx={{ width: '100%', mb: 2, boxShadow: 0 }}>
-                    <TableContainer
-                        component={Paper}
+            <>
+                {data?.results.length > 0 ? (
+                    <Box sx={{ width: '100%', boxShadow: 0 }}>
+                        <Paper sx={{ width: '100%', mb: 2, boxShadow: 0 }}>
+                            <TableContainer
+                                component={Paper}
+                                sx={{
+                                    boxShadow: 0,
+                                    border: `1px solid ${theme.palette.divider}`
+                                }}
+                            >
+                                <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                                    <EnhancedTableHead
+                                        order={order}
+                                        orderBy={orderBy}
+                                        onRequestSort={handleRequestSort}
+                                        rowCount={data?.results?.length}
+                                    />
+                                    <TableBody>
+                                        {data?.results && data?.results.length > 0
+                                            ? data?.results.map((item) => (
+                                                  <TableRow
+                                                      hover
+                                                      key={item.id}
+                                                      sx={{ '&:last-child td, &:last-child th': { border: 0 }, cursor: 'pointer' }}
+                                                      onClick={(event) => handleClick(event, item.id)}
+                                                  >
+                                                      <TableCell>{item.name}</TableCell>
+                                                      <TableCell>{item.rate}</TableCell>
+                                                      <TableCell>{item.stock_on_hand}</TableCell>
+                                                      <TableCell>{item.unit}</TableCell>
+                                                      <TableCell>{item.hsn_code}</TableCell>
+                                                      <TableCell>{item.cost_price}</TableCell>
+                                                      <TableCell>{item.selling_price}</TableCell>
+                                                  </TableRow>
+                                              ))
+                                            : null}
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+                            <TablePagination
+                                rowsPerPageOptions={[10]}
+                                component="div"
+                                count={data?.count}
+                                rowsPerPage={rowsPerPage}
+                                page={page}
+                                onPageChange={handleChangePage}
+                                onRowsPerPageChange={handleChangeRowsPerPage}
+                            />
+                        </Paper>
+                    </Box>
+                ) : (
+                    <Box
                         sx={{
-                            boxShadow: 0,
-                            border: `1px solid ${theme.palette.divider}`
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            textAlign: 'center'
                         }}
                     >
-                        <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                            <EnhancedTableHead
-                                order={order}
-                                orderBy={orderBy}
-                                onRequestSort={handleRequestSort}
-                                rowCount={data?.results?.length}
-                            />
-                            <TableBody>
-                                {data?.results && data?.results.length > 0
-                                    ? data?.results.map((item) => (
-                                          <TableRow
-                                              hover
-                                              key={item.id}
-                                              sx={{ '&:last-child td, &:last-child th': { border: 0 }, cursor: 'pointer' }}
-                                              onClick={(event) => handleClick(event, item.id)}
-                                          >
-                                              <TableCell>{item.name}</TableCell>
-                                              <TableCell>{item.rate}</TableCell>
-                                              <TableCell>{item.stock_on_hand}</TableCell>
-                                              <TableCell>{item.unit}</TableCell>
-                                              <TableCell>{item.hsn_code}</TableCell>
-                                              <TableCell>{item.cost_price}</TableCell>
-                                              <TableCell>{item.selling_price}</TableCell>
-                                          </TableRow>
-                                      ))
-                                    : null}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                    <TablePagination
-                        rowsPerPageOptions={[10]}
-                        component="div"
-                        count={data?.count}
-                        rowsPerPage={rowsPerPage}
-                        page={page}
-                        onPageChange={handleChangePage}
-                        onRowsPerPageChange={handleChangeRowsPerPage}
-                    />
-                </Paper>
-            </Box>
+                        <Typography variant="h2" sx={{ fontSize: '1rem', fontWeight: 700, color: '#000', margin: 0, marginBottom: 2 }}>
+                            Nothing to see yet
+                        </Typography>
+                        <Typography variant="body1">Your items will show here when you add them</Typography>
+                    </Box>
+                )}
+            </>
         );
     };
 

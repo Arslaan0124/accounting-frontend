@@ -1,9 +1,9 @@
 // project import
 import dashboard from './dashboard';
-import services from './services';
+import sales from './sales';
 
 const menuItems = {
-    items: [dashboard, services]
+    items: [dashboard, sales]
 };
 
 export default menuItems;

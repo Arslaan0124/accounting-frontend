@@ -12,6 +12,10 @@ import NewItem from 'features/items/NewItem';
 
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import NotFound from 'pages/error/Notfound';
+import CustomersPage from 'features/customers/CustomersPage';
+import CustomerDetailPage from 'features/customers/CustomerDetailPage';
+import NewCustomer from 'features/customers/NewCustomer';
 
 // render - dashboard
 const DashboardDefault = Loadable(lazy(() => import('pages/dashboard')));
@@ -80,8 +84,20 @@ const MainRoutes = {
             element: <NewItem />
         },
         {
+            path: 'customers',
+            element: <CustomersPage />
+        },
+        {
+            path: 'customers/:id',
+            element: <CustomerDetailPage />
+        },
+        {
+            path: 'new-customer',
+            element: <NewCustomer />
+        },
+        {
             path: '*',
-            element: <div>404!</div>
+            element: <NotFound />
         }
     ]
 };
