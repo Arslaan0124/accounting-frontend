@@ -12,15 +12,22 @@ import {
     Box,
     Modal,
     Tooltip,
+    IconButton,
     Button
 } from '@mui/material';
 import MainCard from 'components/MainCard';
 import { useParams } from 'react-router-dom';
 import InvoicePDF from './InvoicePDF';
-import { useDeleteInvoiceMutation, useGetInvoiceQuery, useSendInvoiceEmailMutation } from './invoicesApi';
+import {
+    useDeleteInvoiceMutation,
+    useGetInvoiceQuery,
+    useMarkPaidMutation,
+    usePaymentStatusMutation,
+    useSendInvoiceEmailMutation
+} from './invoicesApi';
 import { useCallback, useState } from 'react';
 import { PDFViewer } from '@react-pdf/renderer';
-import { DownloadOutlined, SendOutlined } from '@ant-design/icons';
+import { DownloadOutlined, SendOutlined, CheckCircleTwoTone, CloseCircleTwoTone } from '@ant-design/icons';
 import { useTheme } from '@mui/material/styles';
 import { ErrorToast, SuccessToast } from 'components/Toasts/Toasts';
 import { useNavigate } from 'react-router-dom';
@@ -45,6 +52,7 @@ function InvoiceDetailPage() {
     const { data: invoice, isLoading } = useGetInvoiceQuery(id);
     const [deleteInvoice] = useDeleteInvoiceMutation();
     const [sendInvoiceEmail] = useSendInvoiceEmailMutation();
+    const [paymentStatus] = usePaymentStatusMutation();
     const [open, setOpen] = useState(false);
     const theme = useTheme();
     const navigate = useNavigate();
@@ -74,6 +82,15 @@ function InvoiceDetailPage() {
         });
 
         return totalAmount.toFixed(2);
+    };
+
+    const handlePaymentStatus = async (value) => {
+        try {
+            await paymentStatus({ id: invoice?.id, payment_status: value }).unwrap();
+            SuccessToast(`This invoice has been set to ${value}`);
+        } catch (err) {
+            ErrorToast(`Failed to mark ${value}`);
+        }
     };
 
     const handleSendInvoiceEmail = async () => {
@@ -107,24 +124,68 @@ function InvoiceDetailPage() {
     return (
         <>
             <Box>
-                <Box sx={{ display: 'flex', justifyContent: 'end', padding: 2 }}>
-                    <Tooltip title="Delete Invoice">
-                        <Button startIcon={<DeleteIcon />} onClick={handleDelete} sx={{ marginRight: 2 }} variant="outlined" color="error">
-                            Delete
-                        </Button>
-                    </Tooltip>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', padding: 2 }}>
+                    {invoice.payment_status == 'paid' ? (
+                        <Box display="flex" alignItems="center">
+                            <Tooltip title="This invoice has been set to paid. MARK UNPAID?">
+                                <IconButton
+                                    onClick={() => handlePaymentStatus('unpaid')}
+                                    sx={{ marginRight: 2 }}
+                                    variant="outlined"
+                                    color="danger"
+                                >
+                                    <CheckCircleTwoTone twoToneColor="#52c41a" style={{ fontSize: '200%' }} />
+                                </IconButton>
+                            </Tooltip>
+                        </Box>
+                    ) : (
+                        <Tooltip title="This invoice hasn't been paid yet. MARK PAID?">
+                            <IconButton
+                                onClick={() => handlePaymentStatus('paid')}
+                                sx={{ marginRight: 2 }}
+                                variant="outlined"
+                                color="danger"
+                            >
+                                <CloseCircleTwoTone twoToneColor="#FF0000" style={{ fontSize: '200%' }} />
+                            </IconButton>
+                        </Tooltip>
+                    )}
 
-                    <Button
-                        startIcon={<DownloadOutlined />}
-                        onClick={handleOpen}
-                        variant="contained"
-                        color="primary"
-                        sx={{ marginRight: 2 }}
-                    >
-                        Download PDF
-                    </Button>
-                    {invoice.sent_times > 0 ? (
-                        <>
+                    <Box>
+                        <Tooltip title="Delete Invoice">
+                            <Button
+                                startIcon={<DeleteIcon />}
+                                onClick={handleDelete}
+                                sx={{ marginRight: 2 }}
+                                variant="outlined"
+                                color="error"
+                            >
+                                Delete
+                            </Button>
+                        </Tooltip>
+
+                        <Button
+                            startIcon={<DownloadOutlined />}
+                            onClick={handleOpen}
+                            variant="contained"
+                            color="primary"
+                            sx={{ marginRight: 2 }}
+                        >
+                            Download PDF
+                        </Button>
+                        {invoice.sent_times > 0 ? (
+                            <>
+                                <Button
+                                    startIcon={<SendOutlined />}
+                                    onClick={handleSendInvoiceEmail}
+                                    variant="outlined"
+                                    color="primary"
+                                    sx={{ marginRight: 2 }}
+                                >
+                                    Send again?
+                                </Button>
+                            </>
+                        ) : (
                             <Button
                                 startIcon={<SendOutlined />}
                                 onClick={handleSendInvoiceEmail}
@@ -132,20 +193,10 @@ function InvoiceDetailPage() {
                                 color="primary"
                                 sx={{ marginRight: 2 }}
                             >
-                                Send again?
+                                Send to Customer
                             </Button>
-                        </>
-                    ) : (
-                        <Button
-                            startIcon={<SendOutlined />}
-                            onClick={handleSendInvoiceEmail}
-                            variant="outlined"
-                            color="primary"
-                            sx={{ marginRight: 2 }}
-                        >
-                            Send to Customer
-                        </Button>
-                    )}
+                        )}
+                    </Box>
                 </Box>
                 <Modal open={open} onClose={handleClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
                     <Box sx={style}>

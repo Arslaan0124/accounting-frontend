@@ -270,7 +270,7 @@ const InvoiceTable = () => {
 
     return (
         <>
-            <Grid container display="flex" justifyContent="end" sx={{ marginBottom: 2 }}>
+            <Grid container display="flex" justifyContent="end" sx={{ marginBottom: 2, marginTop: 2 }}>
                 <Grid item xs={12} sm={6} lg={4}>
                     <Autocomplete
                         multiple
