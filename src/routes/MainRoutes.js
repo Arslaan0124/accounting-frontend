@@ -16,6 +16,9 @@ import NotFound from 'pages/error/Notfound';
 import CustomersPage from 'features/customers/CustomersPage';
 import CustomerDetailPage from 'features/customers/CustomerDetailPage';
 import NewCustomer from 'features/customers/NewCustomer';
+import UpdateInvoice from 'features/invoices/UpdateInvoice';
+import UpdateItemForm from 'features/items/UpdateItem';
+import UpdateCustomer from 'features/customers/UpdateCustomer';
 
 // render - dashboard
 const DashboardDefault = Loadable(lazy(() => import('pages/dashboard')));
@@ -72,6 +75,10 @@ const MainRoutes = {
             element: <NewInvoice />
         },
         {
+            path: 'invoices/:id/update',
+            element: <UpdateInvoice />
+        },
+        {
             path: 'items',
             element: <ItemsPage />
         },
@@ -84,12 +91,20 @@ const MainRoutes = {
             element: <NewItem />
         },
         {
+            path: 'items/:id/update',
+            element: <UpdateItemForm />
+        },
+        {
             path: 'customers',
             element: <CustomersPage />
         },
         {
             path: 'customers/:id',
             element: <CustomerDetailPage />
+        },
+        {
+            path: 'customers/:id/update',
+            element: <UpdateCustomer />
         },
         {
             path: 'new-customer',
