@@ -11,6 +11,10 @@ export const customersApiSlice = apiSlice.injectEndpoints({
             query: (id) => `accounting/customers/${id}`,
             providesTags: [{ type: 'Customers', id: 'LIST' }]
         }),
+        getCustomerInvoices: builder.query({
+            query: (id) => `accounting/customers/${id}/get_invoices`,
+            providesTags: [{ type: 'Customers', id: 'Customer invoices' }]
+        }),
         customersSearch: builder.query({
             query: (value) => `accounting/customers/?name=${value}`
         }),
@@ -32,5 +36,11 @@ export const customersApiSlice = apiSlice.injectEndpoints({
     })
 });
 
-export const { useGetCustomersQuery, useLazyCustomersSearchQuery, useGetCustomerQuery, useAddCustomerMutation, useDeleteCustomerMutation } =
-    customersApiSlice;
+export const {
+    useGetCustomersQuery,
+    useLazyCustomersSearchQuery,
+    useGetCustomerQuery,
+    useGetCustomerInvoicesQuery,
+    useAddCustomerMutation,
+    useDeleteCustomerMutation
+} = customersApiSlice;

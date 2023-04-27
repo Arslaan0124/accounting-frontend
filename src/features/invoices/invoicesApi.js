@@ -3,8 +3,8 @@ import { apiSlice } from 'app/api/apiSlice';
 export const invoicesApiSlice = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
         getInvoices: builder.query({
-            query: ({ orderBy, order, offset }) =>
-                `accounting/invoices/?offset=${offset}&order=${order === 'asc' ? orderBy : `-${orderBy}`}`,
+            query: ({ orderBy, order, offset, filters }) =>
+                `accounting/invoices/?offset=${offset}&order=${order === 'asc' ? orderBy : `-${orderBy}`}&${filters}`,
             providesTags: [{ type: 'Invoices', id: 'LIST' }]
         }),
         getInvoice: builder.query({

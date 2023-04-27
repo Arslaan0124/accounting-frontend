@@ -1,12 +1,16 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { useGetInvoicesQuery, useLazyGetInvoicesQuery } from 'features/invoices/invoicesApi';
+import React, { useCallback, useState } from 'react';
+import { useGetInvoicesQuery } from 'features/invoices/invoicesApi';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
+import TextField from '@mui/material/TextField';
 import TableRow from '@mui/material/TableRow';
+import Grid from '@mui/material/Grid';
 import TableSortLabel from '@mui/material/TableSortLabel';
+import Chip from '@mui/material/Chip';
+import Autocomplete from '@mui/material/Autocomplete';
 import Paper from '@mui/material/Paper';
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
@@ -39,6 +43,13 @@ const headCells = [
         numeric: false,
         disablePadding: false,
         label: 'ORDER NUMBER',
+        sortable: true
+    },
+    {
+        id: 'payment_status',
+        numeric: false,
+        disablePadding: false,
+        label: 'PAYMENT STATUS',
         sortable: true
     },
     {
@@ -111,13 +122,43 @@ const InvoiceTable = () => {
     const [orderBy, setOrderBy] = useState('created_at');
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [filters, setFilters] = useState(null);
     const navigate = useNavigate();
     const offset = page * 10;
-    const { data, isLoading, isError } = useGetInvoicesQuery({ orderBy, order, offset });
+    const { data, isLoading, isError } = useGetInvoicesQuery({ orderBy, order, offset, filters });
 
     if (isError) {
         ErrorToast('Failed to fetch invoices');
     }
+
+    const filterOptions = [
+        { title: 'Active', value: 'active' },
+        { title: 'Draft', value: 'draft' },
+        { title: 'Complete', value: 'complete' },
+        { title: 'Paid', value: 'paid' },
+        { title: 'Unpaid', value: 'unpaid' }
+    ];
+
+    const handleFilterChange = (event, selectedOptions) => {
+        const selectedValues = selectedOptions.map((option) => option.value);
+        var q = '';
+        if (selectedValues.includes('paid')) {
+            q = q + 'payment_status=paid&';
+        }
+        if (selectedValues.includes('unpaid')) {
+            q = q + 'payment_status=unpaid&';
+        }
+        if (selectedValues.includes('active')) {
+            q = q + 'status=active&';
+        }
+        if (selectedValues.includes('draft')) {
+            q = q + 'status=draft&';
+        }
+        if (selectedValues.includes('complete')) {
+            q = q + 'status=complete&';
+        }
+        setFilters(q);
+    };
 
     const handleRequestSort = (event, newOrderBy) => {
         const isAsc = orderBy === newOrderBy && order === 'asc';
@@ -178,6 +219,7 @@ const InvoiceTable = () => {
                                                       <TableCell>{invoice.date}</TableCell>
                                                       <TableCell>{invoice.id}</TableCell>
                                                       <TableCell>{invoice.order_number}</TableCell>
+                                                      <TableCell>{invoice.payment_status}</TableCell>
                                                       <TableCell>{invoice.customer?.name}</TableCell>
                                                       <TableCell>{invoice.due_date}</TableCell>
                                                       <TableCell>{moment(invoice.created_at).fromNow()}</TableCell>
@@ -226,7 +268,25 @@ const InvoiceTable = () => {
         );
     }
 
-    return <InvoicesTable />;
+    return (
+        <>
+            <Grid container display="flex" justifyContent="end" sx={{ marginBottom: 2 }}>
+                <Grid item xs={12} sm={6} lg={4}>
+                    <Autocomplete
+                        multiple
+                        id="tags-outlined"
+                        options={filterOptions}
+                        isOptionEqualToValue={(option, value) => option.value === value.value}
+                        getOptionLabel={(option) => option.title}
+                        filterSelectedOptions
+                        onChange={handleFilterChange}
+                        renderInput={(params) => <TextField {...params} label="Filter invoices" placeholder="Favorites" />}
+                    />
+                </Grid>
+            </Grid>
+            <InvoicesTable />
+        </>
+    );
 };
 
 export default InvoiceTable;

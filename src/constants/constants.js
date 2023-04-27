@@ -1,4 +1,4 @@
-export const BASE_URL = 'http://127.0.0.1:9000/';
+export const BASE_URL = 'http://127.0.0.1:9001/';
 // export const BASE_URL = 'https://arslantariqdev.pythonanywhere.com/';
 export const auth = {
     currentUser: 'user',

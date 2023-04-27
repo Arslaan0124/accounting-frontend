@@ -38,6 +38,7 @@ const AddInvoice = () => {
         date: '',
         dueDate: '',
         status: 'active',
+        payment_status: 'unpaid',
         billingAddress: '',
         shippingAddress: '',
         remarks: '',
@@ -62,14 +63,13 @@ const AddInvoice = () => {
         remarks: values.remarks,
         date: values.date,
         adjustment: values.adjustment,
-        customer: customer,
+        customer: customer.id,
         items: items
     });
 
     const handleSubmit = async (event) => {
         event.preventDefault();
         const payload = mutateFormValues(formValues);
-        console.log(payload);
         try {
             await addInvoice(payload);
             SuccessToast('Invoice added successfully');
@@ -99,7 +99,6 @@ const AddInvoice = () => {
     const handleSelectChange = (choice) => {
         choice ? setCustomer(choice.value) : setCustomer(null);
     };
-
     const promiseOptions = async (inputValue) => {
         try {
             const response = await search(inputValue).unwrap();
@@ -120,7 +119,10 @@ const AddInvoice = () => {
 
     const formSelectOptions = (customers) => {
         return customers?.map((customer) => ({
-            value: customer.id,
+            value: {
+                id: customer.id,
+                ...customer
+            },
             label: customer.name
         }));
     };
@@ -149,10 +151,12 @@ const AddInvoice = () => {
     };
 
     const getTotalAmount = () => {
-        return items.reduce((total, item) => {
+        const total = items.reduce((total, item) => {
             const amount = item.quantity * item.rate * (1 - item.discount / 100) * (1 + item.tax / 100);
             return total + amount;
         }, 0);
+
+        return total.toFixed(2);
     };
 
     const calculateAmount = useCallback((quantity, rate, discount, tax) => {
@@ -291,6 +295,14 @@ const AddInvoice = () => {
                         <span>Select a customer</span>
                         {renderSelect()}
                     </Grid>
+                    {customer && (
+                        <Grid item xs={12}>
+                            <Box padding={5} sx={{ border: `1px solid ${theme.palette.divider}` }}>
+                                <h4>Shipping Adress: {customer.shipping_address}</h4>
+                                <h4>Billing Adress: {customer.billing_address}</h4>
+                            </Box>
+                        </Grid>
+                    )}
                     <Grid item xs={12}>
                         <TextField
                             required
@@ -336,42 +348,60 @@ const AddInvoice = () => {
                     <Grid item sm={12} sx={12}>
                         <hr />
                     </Grid>
-                    <Grid item xs={12}>
-                        <FormControl>
+                    <Grid item xs={12} sm={6}>
+                        <FormControl sx={{ width: '100%' }}>
                             <InputLabel id="status-label">Status</InputLabel>
                             <Select labelId="status-label" id="status" name="status" value={formValues.status} onChange={handleInputChange}>
                                 <MenuItem value={'active'}>Active</MenuItem>
                                 <MenuItem value={'draft'}>Draft</MenuItem>
+                                <MenuItem value={'complete'}>Complete</MenuItem>
                             </Select>
                         </FormControl>
                     </Grid>
-                    <Grid item xs={8}>
+                    <Grid item xs={12} sm={6}>
+                        <FormControl sx={{ width: '100%' }}>
+                            <InputLabel id="status-label">Payment</InputLabel>
+                            <Select
+                                labelId="status-label"
+                                id="payment_status"
+                                name="payment_status"
+                                value={formValues.payment_status}
+                                onChange={handleInputChange}
+                            >
+                                <MenuItem value={'paid'}>Paid</MenuItem>
+                                <MenuItem value={'unpaid'}>Unpaid</MenuItem>
+                            </Select>
+                        </FormControl>
+                    </Grid>
+                    <Grid item xs={6}>
                         <TextField
                             sx={{ width: '100%' }}
                             required
                             id="billingAddress"
                             name="billingAddress"
                             label="Billing Address"
+                            disabled
                             multiline
                             rows={4}
-                            value={formValues.billingAddress}
+                            value={customer ? customer.billing_address : formValues.billingAddress}
                             onChange={handleInputChange}
                         />
                     </Grid>
-                    <Grid item xs={8}>
+                    <Grid item xs={6}>
                         <TextField
                             sx={{ width: '100%' }}
                             required
                             id="shippingAddress"
                             name="shippingAddress"
                             label="Shipping Address"
+                            disabled
                             multiline
                             rows={4}
-                            value={formValues.shippingAddress}
+                            value={customer ? customer.shipping_address : formValues.shippingAddress}
                             onChange={handleInputChange}
                         />
                     </Grid>
-                    <Grid item xs={8}>
+                    <Grid item xs={12} sm={12}>
                         <TextField
                             sx={{ width: '100%' }}
                             id="remarks"
@@ -383,7 +413,7 @@ const AddInvoice = () => {
                             onChange={handleInputChange}
                         />
                     </Grid>
-                    <Grid item xs={12} sm={6}>
+                    <Grid item xs={6}>
                         <TextField
                             sx={{ width: '100%' }}
                             id="shippingCharges"
@@ -394,7 +424,7 @@ const AddInvoice = () => {
                             onChange={handleInputChange}
                         />
                     </Grid>
-                    <Grid item xs={12} sm={6}>
+                    <Grid item xs={6}>
                         <TextField
                             sx={{ width: '100%' }}
                             id="adjustment"
@@ -405,7 +435,7 @@ const AddInvoice = () => {
                             onChange={handleInputChange}
                         />
                     </Grid>
-                    <Grid item xs={12} sm={8}>
+                    <Grid item xs={12} sm={6}>
                         <TextField
                             sx={{ width: '100%' }}
                             id="customerNotes"
@@ -420,7 +450,7 @@ const AddInvoice = () => {
                     <Grid item sm={12} sx={12}>
                         <hr />
                     </Grid>
-                    <Grid item xs={12} sm={8}>
+                    <Grid item xs={12} sm={6}>
                         <TextField
                             sx={{ width: '100%' }}
                             id="termsAndConditions"

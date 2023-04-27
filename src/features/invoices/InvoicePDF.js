@@ -85,47 +85,98 @@ const InvoicePDF = ({ invoice }) => {
         return amount.toFixed(2);
     }, []);
 
+    const customerName = invoice.customer.name;
+    const companyName = invoice.customer.company_name;
+    const customerEmail = invoice.customer.email;
+    const orderNumber = invoice.order_number;
+    const invoiceDate = invoice.date;
+    const dueDate = invoice.due_date;
+    const billingAddress = invoice.billing_address;
+    const shippingAddress = invoice.shipping_address;
+    const shippingCharges = invoice.shipping_charges;
+    const adjustment = invoice.adjustment;
+    const customerNotes = invoice.customer_notes;
+    const termsAndConditions = invoice.terms_and_conditions;
+
     return (
         <Document>
-            <Page size="A4" style={styles.page}>
+            <Page style={styles.page}>
                 <View style={styles.header}>
-                    <h4>Simple Accounting</h4>
                     <View style={styles.companyInfo}>
-                        <Text style={styles.companyName}>Your Company Name</Text>
-                        <Text style={styles.address}>1234 Main St, Anytown USA 12345</Text>
+                        <Text style={styles.companyName}>{companyName}</Text>
+                        <Text style={styles.address}>{billingAddress}</Text>
                         <View style={styles.contactInfo}>
-                            <Text style={styles.email}>hello@yourcompany.com</Text>
-                            <Text>|</Text>
-                            <Text>555-123-4567</Text>
+                            <Text style={styles.email}>{customerEmail}</Text>
                         </View>
                     </View>
+                    <View>
+                        <Text>Invoice # {orderNumber}</Text>
+                        <Text>Date: {invoiceDate}</Text>
+                        <Text>Due Date: {dueDate}</Text>
+                    </View>
+                </View>
+
+                <View>
+                    <Text style={styles.sectionHeader}>Bill To:</Text>
+                    <Text>{customerName}</Text>
+                    <Text>{billingAddress}</Text>
+                    <Text>{customerEmail}</Text>
                 </View>
                 <View>
-                    <Text style={styles.sectionHeader}>Invoice #{invoice.id}</Text>
-                    <Text>Order Number: {invoice.order_number}</Text>
-                    <Text>Date: {invoice.date}</Text>
-                    <Text>Due Date: {invoice.due_date}</Text>
-                    <Text>Status: {invoice.status[1]}</Text>
+                    <Text style={styles.sectionHeader}>Ship To:</Text>
+                    <Text>{customerName}</Text>
+                    <Text>{shippingAddress}</Text>
                 </View>
-                <View style={styles.table}>
-                    <View style={[styles.tableRow, styles.tableHeader]}>
-                        <Text style={[styles.tableCell, styles.header]}>Item</Text>
-                        <Text style={[styles.tableCell, styles.header]}>Quantity</Text>
-                        <Text style={[styles.tableCell, styles.header]}>Price</Text>
-                        <Text style={[styles.tableCell, styles.header]}>Total</Text>
-                    </View>
-                    {invoice.items.map((item) => (
-                        <View style={styles.tableRow}>
-                            <Text style={styles.tableCell}>{item.name}</Text>
-                            <Text style={styles.tableCell}>{item.quantity}</Text>
-                            <Text style={styles.tableCell}>${item.rate}</Text>
-                            <Text style={styles.tableCell}>${item.rate * item.quantity}</Text>
+
+                <View>
+                    <Text style={styles.sectionHeader}>Order Summary:</Text>
+                    <View style={styles.table}>
+                        <View style={[styles.tableRow, styles.tableHeader]}>
+                            <Text style={[styles.tableCell, { fontWeight: 'bold' }]}>Item</Text>
+                            <Text style={[styles.tableCell, { fontWeight: 'bold' }]}>Quantity</Text>
+                            <Text style={[styles.tableCell, { fontWeight: 'bold' }]}>Rate</Text>
+                            <Text style={[styles.tableCell, { fontWeight: 'bold' }]}>Discount</Text>
+                            <Text style={[styles.tableCell, { fontWeight: 'bold' }]}>Tax</Text>
+                            <Text style={[styles.tableCell, { fontWeight: 'bold' }]}>Amount</Text>
                         </View>
-                    ))}
-                </View>
-                {/* <Text style={styles.total}>Total: $ {calculateAmount(item.quantity, item.rate, item.discount, item.tax)}</Text> */}
-                <View style={styles.footer}>
-                    <Text>This is a sample invoice.</Text>
+
+                        {invoice.items.map((itemDetails, index) => (
+                            <View key={index} style={styles.tableRow}>
+                                <Text style={styles.tableCell}>{itemDetails.item.name}</Text>
+                                <Text style={styles.tableCell}>{itemDetails.quantity}</Text>
+                                <Text style={styles.tableCell}>{itemDetails.rate}</Text>
+                                <Text style={styles.tableCell}>{itemDetails.discount}%</Text>
+                                <Text style={styles.tableCell}>{itemDetails.tax}%</Text>
+                                <Text style={styles.tableCell}>
+                                    {calculateAmount(itemDetails.quantity, itemDetails.rate, itemDetails.discount, itemDetails.tax)}
+                                </Text>
+                            </View>
+                        ))}
+
+                        <View style={[styles.tableRow, { height: 30 }]}>
+                            <Text style={[styles.tableCell, { borderBottomWidth: 0 }]}></Text>
+                            <Text style={[styles.tableCell, { borderBottomWidth: 0 }]}></Text>
+                            <Text style={[styles.tableCell, { borderBottomWidth: 0 }]}></Text>
+                            <Text style={[styles.tableCell, { fontWeight: 'bold', textAlign: 'right' }]}>Shipping Charges:</Text>
+                            <Text style={[styles.tableCell, { textAlign: 'right' }]}>{shippingCharges}</Text>
+                        </View>
+
+                        <View style={[styles.tableRow, { height: 30 }]}>
+                            <Text style={[styles.tableCell, { borderBottomWidth: 0 }]}></Text>
+                            <Text style={[styles.tableCell, { borderBottomWidth: 0 }]}></Text>
+                            <Text style={[styles.tableCell, { borderBottomWidth: 0 }]}></Text>
+                            <Text style={[styles.tableCell, { fontWeight: 'bold', textAlign: 'right' }]}>Adjustment:</Text>
+                            <Text style={[styles.tableCell, { textAlign: 'right' }]}>{adjustment}</Text>
+                        </View>
+
+                        <View style={[styles.tableRow, { height: 30 }]}>
+                            <Text style={[styles.tableCell, { borderBottomWidth: 0 }]}></Text>
+                            <Text style={[styles.tableCell, { borderBottomWidth: 0 }]}></Text>
+                            <Text style={[styles.tableCell, { borderBottomWidth: 0 }]}></Text>
+                            <Text style={[styles.tableCell, { fontWeight: 'bold', textAlign: 'right' }]}>Total:</Text>
+                            <Text style={[styles.tableCell, { fontWeight: 'bold', textAlign: 'right' }]}>{invoice.total}</Text>
+                        </View>
+                    </View>
                 </View>
             </Page>
         </Document>

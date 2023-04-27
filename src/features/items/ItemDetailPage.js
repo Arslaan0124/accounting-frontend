@@ -1,11 +1,11 @@
 import { Typography, Grid, Paper, CircularProgress, Box, IconButton, Tooltip } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
 import MainCard from 'components/MainCard';
 import { useParams } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
 import { useDeleteItemMutation, useGetItemQuery } from './itemsApi';
 import { ErrorToast, SuccessToast } from 'components/Toasts/Toasts';
 import { useNavigate } from 'react-router-dom';
-import DeleteIcon from '@mui/icons-material/Delete';
 
 function ItemDetailPage() {
     const { id } = useParams();
@@ -65,7 +65,7 @@ function ItemDetailPage() {
                     </Grid>
                     <Grid item xs={12} md={6}>
                         <Paper sx={{ padding: 5, height: '100%', border: `1px solid ${theme.palette.divider}`, boxShadow: 0 }}>
-                            <Typography variant="h5">Selling Information</Typography>
+                            <Typography variant="h5">Sales Information</Typography>
                             <hr />
                             <Typography variant="subtitle1">{item.selling_price}</Typography>
                         </Paper>

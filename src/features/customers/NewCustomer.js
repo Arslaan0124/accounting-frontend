@@ -13,12 +13,14 @@ const validationSchema = Yup.object().shape({
     display_name: Yup.string().required('Display name is required'),
     email: Yup.string().email('Invalid email address').required('Email is required'),
     phone: Yup.string().required('Phone number is required'),
-    website: Yup.string().url('Invalid website URL')
+    website: Yup.string().url('Invalid website URL'),
+    shipping_address: Yup.string().required('Shipping address is required'),
+    billing_address: Yup.string()
 });
 
 const NewCustomer = () => {
     const [addCustomer] = useAddCustomerMutation();
-    const navigate = useNavigate()
+    const navigate = useNavigate();
 
     const initialValues = {
         name: '',
@@ -27,10 +29,12 @@ const NewCustomer = () => {
         display_name: '',
         email: '',
         phone: '',
-        website: ''
+        website: '',
+        shipping_address: '',
+        billing_address: ''
     };
 
-    const handleSubmit = async(values, actions) => {
+    const handleSubmit = async (values, actions) => {
         console.log(values);
         actions.setSubmitting(false);
         try {
@@ -86,6 +90,14 @@ const NewCustomer = () => {
                                     <ErrorMessage name="website">{(msg) => <div style={{ color: 'red' }}>{msg}</div>}</ErrorMessage>
                                 </Grid>
                                 <Grid item xs={12}>
+                                    <Field fullWidth name="shipping_address" label="Shipping Address" as={TextField} />
+                                    <ErrorMessage name="phone">{(msg) => <div style={{ color: 'red' }}>{msg}</div>}</ErrorMessage>
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <Field fullWidth name="billing_address" label="Billing Address" as={TextField} />
+                                    <ErrorMessage name="website">{(msg) => <div style={{ color: 'red' }}>{msg}</div>}</ErrorMessage>
+                                </Grid>
+                                <Grid item xs={12}>
                                     <Button type="submit" variant="contained" color="primary" disabled={props.isSubmitting}>
                                         Submit
                                     </Button>
@@ -98,6 +110,5 @@ const NewCustomer = () => {
         </Grid>
     );
 };
-
 
 export default NewCustomer;

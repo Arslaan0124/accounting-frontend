@@ -25,7 +25,6 @@ import { useTheme } from '@mui/material/styles';
 import { ErrorToast, SuccessToast } from 'components/Toasts/Toasts';
 import { useNavigate } from 'react-router-dom';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { PromiseToast } from 'components/Toasts/Toasts';
 import { toast } from 'react-toastify';
 
 const style = {
@@ -124,20 +123,34 @@ function InvoiceDetailPage() {
                     >
                         Download PDF
                     </Button>
-                    <Button
-                        startIcon={<SendOutlined />}
-                        onClick={handleSendInvoiceEmail}
-                        variant="outlined"
-                        color="primary"
-                        sx={{ marginRight: 2 }}
-                    >
-                        Send to Customer
-                    </Button>
+                    {invoice.sent_times > 0 ? (
+                        <>
+                            <Button
+                                startIcon={<SendOutlined />}
+                                onClick={handleSendInvoiceEmail}
+                                variant="outlined"
+                                color="primary"
+                                sx={{ marginRight: 2 }}
+                            >
+                                Send again?
+                            </Button>
+                        </>
+                    ) : (
+                        <Button
+                            startIcon={<SendOutlined />}
+                            onClick={handleSendInvoiceEmail}
+                            variant="outlined"
+                            color="primary"
+                            sx={{ marginRight: 2 }}
+                        >
+                            Send to Customer
+                        </Button>
+                    )}
                 </Box>
                 <Modal open={open} onClose={handleClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
                     <Box sx={style}>
                         <PDFViewer style={{ height: '100%', width: '100%', margin: '0 auto' }}>
-                            <InvoicePDF invoice={invoice} />
+                            <InvoicePDF invoice={{ ...invoice, total: calculateTotalAmount() }} />
                         </PDFViewer>
                     </Box>
                 </Modal>
@@ -207,9 +220,18 @@ function InvoiceDetailPage() {
                         <Paper sx={{ padding: 5, border: `1px solid ${theme.palette.divider}`, boxShadow: 0 }}>
                             <Typography variant="h5">Additional Information</Typography>
                             <hr />
-                            <Typography variant="body1">{invoice.remarks}</Typography>
-                            <Typography variant="body1">{invoice.customer_notes}</Typography>
-                            <Typography variant="body1">{invoice.terms_and_conditions}</Typography>
+                            <Typography variant="body1">
+                                <strong>Remarks: </strong>
+                                {invoice.remarks}
+                            </Typography>
+                            <Typography variant="body1">
+                                <strong>Customer Notes: </strong>
+                                {invoice.customer_notes}
+                            </Typography>
+                            <Typography variant="body1">
+                                <strong>Terms & Conditions: </strong>
+                                {invoice.terms_and_conditions}
+                            </Typography>
                         </Paper>
                     </Grid>
                 </Grid>
