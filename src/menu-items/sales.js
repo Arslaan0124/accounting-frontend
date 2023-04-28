@@ -18,7 +18,7 @@ const support = {
             id: 'reports',
             title: 'Reports',
             type: 'item',
-            url: '/sample-page',
+            url: '/reports',
             icon: icons.ChromeOutlined
         },
         {

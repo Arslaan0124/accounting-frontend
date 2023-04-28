@@ -16,6 +16,12 @@ import NotFound from 'pages/error/Notfound';
 import CustomersPage from 'features/customers/CustomersPage';
 import CustomerDetailPage from 'features/customers/CustomerDetailPage';
 import NewCustomer from 'features/customers/NewCustomer';
+import UpdateInvoice from 'features/invoices/UpdateInvoice';
+import UpdateItemForm from 'features/items/UpdateItem';
+import UpdateCustomer from 'features/customers/UpdateCustomer';
+import ReportsDashboard from 'features/reports/ReportsDashboard';
+import SalesByCustomer from 'features/reports/SalesByCustomer';
+import ProfitAndLoss from 'features/reports/ProfitAndLoss';
 
 // render - dashboard
 const DashboardDefault = Loadable(lazy(() => import('pages/dashboard')));
@@ -56,10 +62,6 @@ const MainRoutes = {
             ]
         },
         {
-            path: 'sample-page',
-            element: <SamplePage />
-        },
-        {
             path: 'invoices',
             element: <InvoicePage />
         },
@@ -70,6 +72,10 @@ const MainRoutes = {
         {
             path: 'new-invoice',
             element: <NewInvoice />
+        },
+        {
+            path: 'invoices/:id/update',
+            element: <UpdateInvoice />
         },
         {
             path: 'items',
@@ -84,6 +90,10 @@ const MainRoutes = {
             element: <NewItem />
         },
         {
+            path: 'items/:id/update',
+            element: <UpdateItemForm />
+        },
+        {
             path: 'customers',
             element: <CustomersPage />
         },
@@ -92,8 +102,30 @@ const MainRoutes = {
             element: <CustomerDetailPage />
         },
         {
+            path: 'customers/:id/update',
+            element: <UpdateCustomer />
+        },
+        {
             path: 'new-customer',
             element: <NewCustomer />
+        },
+        {
+            path: 'reports',
+            element: <ReportsDashboard />,
+            children: [
+                {
+                    path: 'sales-by-customer',
+                    element: <SalesByCustomer />
+                },
+                {
+                    path: 'profit-loss',
+                    element: <ProfitAndLoss />
+                },
+                {
+                    path: '*',
+                    element: <NotFound />
+                }
+            ]
         },
         {
             path: '*',

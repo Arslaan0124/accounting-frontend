@@ -14,6 +14,17 @@ export const itemsApiSlice = apiSlice.injectEndpoints({
             query: (id) => `accounting/items/${id}`,
             providesTags: (id) => [{ type: 'Items', id: id }]
         }),
+        updateItem: builder.mutation({
+            query: (item) => {
+                const { id, ...updatedFields } = item;
+                return {
+                    url: `accounting/items/${id}/`,
+                    method: 'PATCH',
+                    body: updatedFields
+                };
+            },
+            invalidatesTags: (result, error, id) => [{ type: 'Items', id: 'LIST' }]
+        }),
         addItem: builder.mutation({
             query: (item) => ({
                 url: 'accounting/items/',
@@ -32,5 +43,12 @@ export const itemsApiSlice = apiSlice.injectEndpoints({
     })
 });
 
-export const { useGetItemsQuery, useLazyGetItemsQuery, useGetItemQuery, useAddItemMutation, useGetAllItemsQuery, useDeleteItemMutation } =
-    itemsApiSlice;
+export const {
+    useGetItemsQuery,
+    useLazyGetItemsQuery,
+    useGetItemQuery,
+    useUpdateItemMutation,
+    useAddItemMutation,
+    useGetAllItemsQuery,
+    useDeleteItemMutation
+} = itemsApiSlice;

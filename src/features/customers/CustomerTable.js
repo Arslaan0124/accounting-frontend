@@ -25,7 +25,7 @@ const headCells = [
         id: 'name',
         numeric: false,
         disablePadding: true,
-        label: 'DATE',
+        label: 'NAME',
         sortable: true
     },
     {
@@ -63,6 +63,7 @@ const EnhancedTableHead = (props) => {
     const createSortHandler = (newOrderBy) => (event) => {
         onRequestSort(event, newOrderBy);
     };
+
     return (
         <TableHead>
             <TableRow>

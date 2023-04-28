@@ -3,7 +3,7 @@ import { BASE_URL } from '../../constants/constants';
 
 const baseQuery = fetchBaseQuery({
     baseUrl: BASE_URL,
-    tagTypes: ['Auth', 'Invoices', 'Items'],
+    tagTypes: ['Auth', 'Invoices', 'Items', 'Reports'],
     keepUnusedDataFor: 30,
     prepareHeaders: (headers, { getState }) => {
         const accessToken = getState().auth.accessToken;

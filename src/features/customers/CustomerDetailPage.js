@@ -4,9 +4,9 @@ import { styled } from '@mui/material/styles';
 import { useParams } from 'react-router-dom';
 import { useDeleteCustomerMutation, useGetCustomerInvoicesQuery, useGetCustomerQuery } from './customersApi';
 import MainCard from 'components/MainCard';
-import DeleteIcon from '@mui/icons-material/Delete';
 import { ErrorToast, SuccessToast } from 'components/Toasts/Toasts';
 import { useNavigate } from 'react-router-dom';
+import { EditTwoTone, DeleteTwoTone } from '@ant-design/icons';
 
 const CustomerDetailPage = () => {
     const { id } = useParams();
@@ -24,6 +24,7 @@ const CustomerDetailPage = () => {
             ErrorToast('Error deleting customer');
         }
     };
+    const handleEdit = () => navigate('update');
 
     if (isLoading) {
         return (
@@ -56,9 +57,14 @@ const CustomerDetailPage = () => {
         <>
             <Box>
                 <Box sx={{ display: 'flex', justifyContent: 'end', padding: 2 }}>
+                    <Tooltip title="Edit item">
+                        <IconButton aria-label="delete" onClick={handleEdit}>
+                            <EditTwoTone style={{ fontSize: '150%' }} />
+                        </IconButton>
+                    </Tooltip>
                     <Tooltip title="Delete customer">
                         <IconButton aria-label="delete" onClick={handleDelete}>
-                            <DeleteIcon />
+                            <DeleteTwoTone style={{ fontSize: '150%' }} />
                         </IconButton>
                     </Tooltip>
                 </Box>
@@ -146,14 +152,14 @@ const CustomerDetailPage = () => {
             </MainCard>
 
             <MainCard title={`Invoices`} sx={{ marginTop: 5 }}>
-                <Box spacing={2} sx={{ maxHeight: 800, overflow: 'auto' }}>
+                <Box spacing={2} sx={{ maxHeight: 800, overflow: 'auto', cursor: 'pointer' }}>
                     {invoices && invoices.length > 0 ? (
                         invoices.map((invoice) => (
                             <Tooltip title="Go to Invoice details">
                                 <Item onClick={() => navigate(`/invoices/${invoice.id}`)}>
                                     <h3>Invoice No#{invoice.id}</h3>
-                                    <p>Invoice No#{invoice.id}</p>
-                                    <p>Invoice No#{invoice.id}</p>
+                                    <p>Order No#{invoice.order_number}</p>
+                                    <p>Payment Status{invoice.payment_status}</p>
                                 </Item>
                             </Tooltip>
                         ))

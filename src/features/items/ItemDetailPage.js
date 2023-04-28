@@ -6,6 +6,7 @@ import { useTheme } from '@mui/material/styles';
 import { useDeleteItemMutation, useGetItemQuery } from './itemsApi';
 import { ErrorToast, SuccessToast } from 'components/Toasts/Toasts';
 import { useNavigate } from 'react-router-dom';
+import { EditTwoTone, DeleteTwoTone } from '@ant-design/icons';
 
 function ItemDetailPage() {
     const { id } = useParams();
@@ -24,6 +25,8 @@ function ItemDetailPage() {
         }
     };
 
+    const handleEdit = () => navigate('update');
+
     if (isLoading) {
         return (
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -36,9 +39,14 @@ function ItemDetailPage() {
         <>
             <Box>
                 <Box sx={{ display: 'flex', justifyContent: 'end', padding: 2 }}>
+                    <Tooltip title="Edit item">
+                        <IconButton aria-label="delete" onClick={handleEdit}>
+                            <EditTwoTone style={{ fontSize: '150%' }} />
+                        </IconButton>
+                    </Tooltip>
                     <Tooltip title="Delete item">
                         <IconButton aria-label="delete" onClick={handleDelete}>
-                            <DeleteIcon />
+                            <DeleteTwoTone style={{ fontSize: '150%' }} />
                         </IconButton>
                     </Tooltip>
                 </Box>
