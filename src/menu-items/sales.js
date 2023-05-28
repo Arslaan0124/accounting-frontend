@@ -9,7 +9,7 @@ const icons = {
     SkinOutlined
 };
 
-const support = {
+const sales = {
     id: 'sales',
     title: 'Sales',
     type: 'group',
@@ -45,4 +45,4 @@ const support = {
     ]
 };
 
-export default support;
+export default sales;

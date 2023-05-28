@@ -21,6 +21,7 @@ import {
     Select,
     MenuItem,
     Box,
+    Typography,
     Autocomplete
 } from '@mui/material';
 
@@ -296,12 +297,52 @@ const AddInvoice = () => {
                         {renderSelect()}
                     </Grid>
                     {customer && (
-                        <Grid item xs={12}>
-                            <Box padding={5} sx={{ border: `1px solid ${theme.palette.divider}` }}>
-                                <h4>Shipping Adress: {customer.shipping_address}</h4>
-                                <h4>Billing Adress: {customer.billing_address}</h4>
-                            </Box>
-                        </Grid>
+                        <>
+                            <Grid item xs={12}>
+                                <Box padding={5} sx={{ border: `1px solid ${theme.palette.divider}` }}>
+                                    <Typography variant="h6" sx={{ marginBottom: 2 }}>
+                                        Shipping Address
+                                    </Typography>
+                                    <Typography variant="body1">
+                                        <strong>Street:</strong> {customer.shipping_address.address}
+                                    </Typography>
+                                    <Typography variant="body1">
+                                        <strong>City:</strong> {customer.shipping_address.city}
+                                    </Typography>
+                                    <Typography variant="body1">
+                                        <strong>State:</strong> {customer.shipping_address.state}
+                                    </Typography>
+                                    <Typography variant="body1">
+                                        <strong>ZIP Code:</strong> {customer.shipping_address.zip_code}
+                                    </Typography>
+                                    <Typography variant="body1">
+                                        <strong>Country:</strong> {customer.shipping_address.country}
+                                    </Typography>
+                                </Box>
+                            </Grid>
+                            <Grid item xs={12}>
+                                <Box padding={5} sx={{ border: `1px solid ${theme.palette.divider}`, marginTop: 3 }}>
+                                    <Typography variant="h6" sx={{ marginBottom: 2 }}>
+                                        Billing Address
+                                    </Typography>
+                                    <Typography variant="body1">
+                                        <strong>Street:</strong> {customer.billing_address.address}
+                                    </Typography>
+                                    <Typography variant="body1">
+                                        <strong>City:</strong> {customer.billing_address.city}
+                                    </Typography>
+                                    <Typography variant="body1">
+                                        <strong>State:</strong> {customer.billing_address.state}
+                                    </Typography>
+                                    <Typography variant="body1">
+                                        <strong>ZIP Code:</strong> {customer.billing_address.zip_code}
+                                    </Typography>
+                                    <Typography variant="body1">
+                                        <strong>Country:</strong> {customer.billing_address.country}
+                                    </Typography>
+                                </Box>
+                            </Grid>
+                        </>
                     )}
                     <Grid item xs={12}>
                         <TextField
@@ -372,34 +413,6 @@ const AddInvoice = () => {
                                 <MenuItem value={'unpaid'}>Unpaid</MenuItem>
                             </Select>
                         </FormControl>
-                    </Grid>
-                    <Grid item xs={6}>
-                        <TextField
-                            sx={{ width: '100%' }}
-                            required
-                            id="billingAddress"
-                            name="billingAddress"
-                            label="Billing Address"
-                            disabled
-                            multiline
-                            rows={4}
-                            value={customer ? customer.billing_address : formValues.billingAddress}
-                            onChange={handleInputChange}
-                        />
-                    </Grid>
-                    <Grid item xs={6}>
-                        <TextField
-                            sx={{ width: '100%' }}
-                            required
-                            id="shippingAddress"
-                            name="shippingAddress"
-                            label="Shipping Address"
-                            disabled
-                            multiline
-                            rows={4}
-                            value={customer ? customer.shipping_address : formValues.shippingAddress}
-                            onChange={handleInputChange}
-                        />
                     </Grid>
                     <Grid item xs={12} sm={12}>
                         <TextField

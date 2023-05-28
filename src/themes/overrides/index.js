@@ -28,7 +28,7 @@ export default function ComponentsOverrides(theme) {
         Checkbox(theme),
         Chip(theme),
         IconButton(theme),
-        InputLabel(theme),
+        // InputLabel(theme),
         LinearProgress(),
         Link(),
         ListItemIcon(),

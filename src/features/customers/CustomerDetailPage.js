@@ -53,6 +53,47 @@ const CustomerDetailPage = () => {
         marginTop: 5
     }));
 
+    const InfoItem = ({ label, value, link }) => (
+        <Box mb={1}>
+            <Typography variant="body1">
+                <strong>{label}:</strong>
+                {link ? (
+                    <Link href={link} target="_blank" rel="noopener">
+                        {value}
+                    </Link>
+                ) : (
+                    <span>{value}</span>
+                )}
+            </Typography>
+        </Box>
+    );
+
+    const AddressItem = ({ label, address }) => (
+        <Box mb={2}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
+                {label}
+            </Typography>
+            <Typography variant="body1">
+                <strong>Country:</strong> {address.country}
+            </Typography>
+            <Typography variant="body1">
+                <strong>City:</strong> {address.city}
+            </Typography>
+            <Typography variant="body1">
+                <strong>Address:</strong> {address.address}
+            </Typography>
+            <Typography variant="body1">
+                <strong>State:</strong> {address.state}
+            </Typography>
+            <Typography variant="body1">
+                <strong>Zip Code:</strong> {address.zip_code}
+            </Typography>
+            <Typography variant="body1">
+                <strong>Phone:</strong> {address.phone}
+            </Typography>
+        </Box>
+    );
+
     return (
         <>
             <Box>
@@ -85,35 +126,11 @@ const CustomerDetailPage = () => {
                             <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
                                 Contact Information
                             </Typography>
-                            <Typography variant="body1">
-                                <strong>Name:</strong>
-                                <br />
-                                {customer.name}
-                            </Typography>
-                            <Typography variant="body1">
-                                <strong>Company name:</strong>
-                                <br />
-                                {customer.company_name}
-                            </Typography>
-                            <Typography variant="body1">
-                                <strong>Email:</strong>
-                                <br />
-                                {customer.email}
-                            </Typography>
-                            <Typography variant="body1">
-                                <strong>Phone:</strong>
-                                <br />
-                                {customer.phone}
-                            </Typography>
-                            {customer.website && (
-                                <Typography variant="body1">
-                                    <strong>Website:</strong>
-                                    <br />
-                                    <Link href={customer.website} target="_blank" rel="noopener">
-                                        {customer.website}
-                                    </Link>
-                                </Typography>
-                            )}
+                            <InfoItem label="Name" value={customer.name} />
+                            <InfoItem label="Company Name" value={customer.company_name} />
+                            <InfoItem label="Email" value={customer.email} />
+                            <InfoItem label="Phone" value={customer.phone} />
+                            {customer.website && <InfoItem label="Website" value={customer.website} link={customer.website} />}
                         </Box>
                     </Grid>
                     <Grid item xs={12} sm={6}>
@@ -121,31 +138,15 @@ const CustomerDetailPage = () => {
                             <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
                                 Additional Information
                             </Typography>
-                            <Typography variant="body1">
-                                <strong>ID:</strong>
-                                <br />
-                                {customer.id}
-                            </Typography>
-                            <Typography variant="body1">
-                                <strong>Created At:</strong>
-                                <br />
-                                {new Date(customer.created_at).toLocaleDateString()}
-                            </Typography>
+                            <InfoItem label="ID" value={customer.id} />
+                            <InfoItem label="Created At" value={new Date(customer.created_at).toLocaleDateString()} />
                         </Box>
                         <Box mb={2}>
                             <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
                                 Addresses
                             </Typography>
-                            <Typography variant="body1">
-                                <strong>Shipping Address:</strong>
-                                <br />
-                                {customer.shipping_address}
-                            </Typography>
-                            <Typography variant="body1">
-                                <strong>Billing Address:</strong>
-                                <br />
-                                {customer.billing_address}
-                            </Typography>
+                            <AddressItem label="Shipping Address" address={customer.shipping_address} />
+                            <AddressItem label="Billing Address" address={customer.billing_address} />
                         </Box>
                     </Grid>
                 </Grid>

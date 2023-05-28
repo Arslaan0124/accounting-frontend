@@ -270,20 +270,22 @@ const InvoiceTable = () => {
 
     return (
         <>
-            <Grid container display="flex" justifyContent="end" sx={{ marginBottom: 2, marginTop: 2 }}>
-                <Grid item xs={12} sm={6} lg={4}>
-                    <Autocomplete
-                        multiple
-                        id="tags-outlined"
-                        options={filterOptions}
-                        isOptionEqualToValue={(option, value) => option.value === value.value}
-                        getOptionLabel={(option) => option.title}
-                        filterSelectedOptions
-                        onChange={handleFilterChange}
-                        renderInput={(params) => <TextField {...params} label="Filter invoices" placeholder="Favorites" />}
-                    />
+            {data?.results?.length > 0 && (
+                <Grid container display="flex" justifyContent="end" sx={{ marginBottom: 2, marginTop: 2 }}>
+                    <Grid item xs={12} sm={6} lg={4}>
+                        <Autocomplete
+                            multiple
+                            id="tags-outlined"
+                            options={filterOptions}
+                            isOptionEqualToValue={(option, value) => option.value === value.value}
+                            getOptionLabel={(option) => option.title}
+                            filterSelectedOptions
+                            onChange={handleFilterChange}
+                            renderInput={(params) => <TextField {...params} label="Filter invoices" placeholder="Favorites" />}
+                        />
+                    </Grid>
                 </Grid>
-            </Grid>
+            )}
             <InvoicesTable />
         </>
     );
